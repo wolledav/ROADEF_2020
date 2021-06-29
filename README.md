@@ -1,4 +1,5 @@
 # ROADEF_2020
+This repository contains the source codes of the ALNS metaheuristic for the Maintenance Scheduling Problem - ROADEF Challenge 2020 competition problem.
 
 ## COMPILATION
 Run in program/ directory the following commands:
