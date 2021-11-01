@@ -11,9 +11,10 @@ tuple<uint_t, fitness_t, Objective> get_cheapest_time(Solution &sol, uint_t i, f
     fitness_t best_cost = numeric_limits<fitness_t>::max();
     Objective o;
     Objective best_o;
+    uniform_real_distribution<fitness_t> dist(0, nu);
     for (uint_t t = 1; t <= sol.instance->get_t_max(i); ++t) {
         o = sol.estimate_schedule(i, t);
-        cost = (1 + nu) * (o.extended_objective - sol.extended_objective);
+        cost = (1 + dist(*sol.engine)) * (o.extended_objective - sol.extended_objective);
         if (best_cost - cost > ACCEPT_TOLERANCE) {
             best_cost = cost;
             cheapest_t = t;
@@ -289,6 +290,27 @@ vector<uint_t> get_unscheduled_subset(Solution &solution, const string& property
     }
 
     return subset;
+}
+
+void random_with_me_violations(Solution &solution) {
+    // Get random intervention
+    std::uniform_int_distribution<uint_t> range(0, solution.unscheduled.size() - 1);
+    auto it = solution.unscheduled.begin();
+    std::advance(it, range(*solution.engine));
+    uint_t i = *it;
+    // Select t with highest exclusion penalty
+    Objective o;
+    uint_t max_e_penalty = 0;
+    uint_t max_t = 1;
+    for (uint_t t = 1; t <= solution.instance->get_t_max(i); ++t) {
+        o = solution.estimate_schedule(i, t);
+        if (o.exclusion_penalty > max_e_penalty) {
+            max_e_penalty = o.exclusion_penalty;
+            max_t = t;
+        }
+    }
+//    cout << i << " " << max_t << endl;
+    solution.schedule(i, max_t);
 }
 
 

@@ -85,6 +85,8 @@ void lrd2_insert(Solution &solution);
 void longest2_insert(Solution &solution);
 void shortest2_insert(Solution &solution);
 
+void random_with_me_violations(Solution &solution);
+
 vector<uint_t> get_unscheduled_subset(Solution &solution, const string& property, fitness_t mu);
 
 #endif //ROADEF_INSERTIONS_H

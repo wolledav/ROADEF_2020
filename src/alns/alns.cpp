@@ -265,6 +265,19 @@ Solution ALNS::greedy_search() {
 #endif
     auto init_solution = construction(instance, &alns_engine);
 
+#if SAVE_SOL_PROGRESS
+    init_solution = random_with_me_violations_construct(instance, &alns_engine);
+    string progress_output = SOL_PROGRESS_DIR + to_string(++sol_progress_cnt) + ".txt";
+    cout << progress_output << endl;
+    init_solution.save(progress_output);
+
+    while(one_shift(init_solution)) {
+        string progress_output = SOL_PROGRESS_DIR + to_string(++sol_progress_cnt) + ".txt";
+        cout << progress_output << endl;
+        init_solution.save(progress_output);
+    }
+#endif
+
 //    cur_sol_mutex.lock();
     cur_solution = init_solution;
     best_solution = cur_solution;
@@ -279,6 +292,11 @@ Solution ALNS::greedy_search() {
     while (!stop()) {
         if (this->iteration()) {
             iter_cnt = 0;
+#if SAVE_SOL_PROGRESS
+            string progress_output = SOL_PROGRESS_DIR + to_string(++sol_progress_cnt) + ".txt";
+            cout << progress_output << endl;
+            best_solution.save(progress_output);
+#endif
         } else {
             iter_cnt++;
         }

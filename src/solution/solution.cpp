@@ -106,6 +106,11 @@ void Solution::save(string output_file_path) {
     std::ofstream output;
     output.open(output_file_path);
     if (!output.is_open()) util::throw_err("Error while opening output file");
+
+#if SAVE_SOL_PROGRESS
+    output << "extended_objective: " << extended_objective << endl;
+#endif
+
     for (uint_to_uint_t::iterator iter = this->start_times.begin(); iter != this->start_times.end(); ++iter) {
         if (!this->instance->get_intervention(iter->first).empty()) {
             output << this->instance->get_intervention(iter->first) << " " << iter->second << endl;
@@ -583,9 +588,10 @@ void Solution::print() {
 
 void Solution::print_state() {
     printf("Restarts cnt: \t\t%u\n", this->restarts_cnt);
+    printf("Valid: \t\t%u\n", this->is_valid());
     printf("Mean risk: \t\t%f\n", this->mean_risk);
     printf("Expected excess: \t%f\n", this->expected_excess);
-    printf("Final objective:  \t%f\n\n", this->final_objective);
+    printf("Final objective:  \t%f\n", this->final_objective);
     printf("Total resource use: \t%f\n", this->total_resource_use);
     printf("Workload overuse: \t%f\n", this->workload_overuse);
     printf("Workload underuse: \t%f\n", this->workload_underuse);

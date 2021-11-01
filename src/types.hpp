@@ -10,7 +10,7 @@ typedef unsigned int uint_t;
 typedef unsigned long int ulint_t;
 typedef unsigned long long int ullint_t;
 typedef double fitness_t; /* change to float or long double to affect performance or precision */
-typedef float half_fitness_t;
+typedef double half_fitness_t;
 typedef std::tuple<fitness_t, uint_t, uint_t> tuple_t;
 
 #endif

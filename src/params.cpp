@@ -8,6 +8,7 @@ uint_t TIME_LIMIT{15 * 60 * 1000 - TIME_RESERVE};
 bool RETURN_ID{false};
 int SEED{1};
 std::chrono::steady_clock::time_point BEGIN{std::chrono::steady_clock::now()};
+uint_t sol_progress_cnt{0};
 
 // DEPENDENT PARAMETERS - COEFFICIENTS
 int ITERS_MAX{5000};
@@ -356,7 +357,7 @@ void parse_global_params(int argc, char *argv[]) {
         else if (!strcmp(label, INPUT_PATH_LABEL)) INPUT_PATH = val;
         else if (!strcmp(label, OUTPUT_PATH_LABEL)) OUTPUT_PATH = val;
         else if (!strcmp(label, TIME_LIMIT_LABEL)) TIME_LIMIT = 1000 * util::convert_to_int(val) - TIME_RESERVE;
-//        else if (!strcmp(label, SEED_LABEL)) SEED = stoi(val); // do nothing
+        else if (!strcmp(label, SEED_LABEL)) SEED = stoi(val);
         else if (!strcmp(label, SEED_LABEL));
         else if (!strcmp(label, TEAM_ID_LABEL)) {
             if (argc == 2) {
@@ -428,95 +429,30 @@ void determine_dependent_params(Instance *instance) {
     methods.default_removals = false;
     methods.default_ls = false;
 
-    bool short_run = TIME_LIMIT < 1000000;
-    bool C_set = INPUT_PATH.at(INPUT_PATH.length() - 9) == 'C';
-//    cout << "Short run: " << short_run << endl;
-//    cout << "C_set: " << C_set << endl;
-
-    if (C_set && short_run) {
-//        cout << "Setup 1\n";
-        ITERS_MAX = nearbyint(evaluate_cubic(ITERS_MAX_offset_short, ITERS_MAX_coefs_short, x0, x1, x2));
-        ALNS_DEPTH = round3(evaluate_cubic(ALNS_DEPTH_offset_short, ALNS_DEPTH_coefs_short, x0, x1, x2));
-        LENGTH_BATCH = round3(evaluate_cubic(LENGTH_BATCH_offset_short, LENGTH_BATCH_coefs_short, x0, x1, x2));
-        COST_BATCH = round3(evaluate_cubic(COST_BATCH_offset_short, COST_BATCH_coefs_short, x0, x1, x2));
-        RD_BATCH = round3(evaluate_cubic(RD_BATCH_offset_short, RD_BATCH_coefs_short, x0, x1, x2));
-        ACCEPT_TOLERANCE = ACCEPT_TOLERANCE_values[nearbyint(evaluate_cubic(ACCEPT_TOLERANCE_offset_short, ACCEPT_TOLERANCE_coefs_short, x0, x1, x2))];
-        OMEGA_1 = round3(evaluate_cubic(OMEGA_1_offset_short, OMEGA_1_coefs_short, x0, x1, x2));
-        OMEGA_2 = round3(evaluate_cubic(OMEGA_2_offset_short, OMEGA_2_coefs_short, x0, x1, x2));
-        OMEGA_4 = round3(evaluate_cubic(OMEGA_4_offset_short, OMEGA_4_coefs_short, x0, x1, x2));
-        LAMBDA = round3(evaluate_cubic(LAMBDA_offset_short, LAMBDA_coefs_short, x0, x1, x2));
-        ONE_SHIFT_DEPTH = round3(evaluate_cubic(ONE_SHIFT_DEPTH_offset_short, ONE_SHIFT_DEPTH_coefs_short, x0, x1, x2));
-        TWO_SHIFT_LIMIT = nearbyint(evaluate_cubic(TWO_SHIFT_LIMIT_offset_short, TWO_SHIFT_LIMIT_coefs_short, x0, x1, x2));
-        LS_FIRST_IMPROVE = (int)nearbyint(evaluate_cubic(LS_FIRST_IMPROVE_offset_short, LS_FIRST_IMPROVE_coefs_short, x0, x1, x2));
-        BETA_LOWER = nearbyint(evaluate_cubic(BETA_LOWER_offset_short, BETA_LOWER_coefs_short, x0, x1, x2));
-        BETA_UPPER = nearbyint(evaluate_cubic(BETA_UPPER_offset_short, BETA_UPPER_coefs_short, x0, x1, x2));
-        GAMMA = nearbyint(evaluate_cubic(GAMMA_offset_short, GAMMA_coefs_short, x0, x1, x2));
-        NU = round3(evaluate_cubic(NU_offset_short, NU_coefs_short, x0, x1, x2));
-        MU1 = round3(evaluate_cubic(MU1_offset_short, MU1_coefs_short, x0, x1, x2));
-        MU2 = round3(evaluate_cubic(MU2_offset_short, MU2_coefs_short, x0, x1, x2));
-        INSERTIONS1 = nearbyint(evaluate_cubic(INSERTIONS1_offset_short, INSERTIONS1_coefs_short, x0, x1, x2));
-        INSERTIONS2 = nearbyint(evaluate_cubic(INSERTIONS2_offset_short, INSERTIONS2_coefs_short, x0, x1, x2));
-        methods.insertions = util::decode_insertions(INSERTIONS1, INSERTIONS2);
-        REMOVALS = nearbyint(evaluate_cubic(REMOVALS_offset_short, REMOVALS_coefs_short, x0, x1, x2));
-        methods.removals = util::decode_removals(REMOVALS);
-        LS = nearbyint(evaluate_cubic(LS_offset_short, LS_coefs_short, x0, x1, x2));
-        methods.ls = util::decode_ls(LS);
-        methods.construction = nearbyint(evaluate_cubic(CONS_offset_short, CONS_coefs_short, x0, x1, x2));
-    } else if (C_set && !short_run) {
-//        cout << "Setup 2\n";
-        ITERS_MAX = nearbyint(evaluate_cubic(ITERS_MAX_offset_long, ITERS_MAX_coefs_long, x0, x1, x2));
-        ALNS_DEPTH = round3(evaluate_cubic(ALNS_DEPTH_offset_long, ALNS_DEPTH_coefs_long, x0, x1, x2));
-        LENGTH_BATCH = round3(evaluate_cubic(LENGTH_BATCH_offset_long, LENGTH_BATCH_coefs_long, x0, x1, x2));
-        COST_BATCH = round3(evaluate_cubic(COST_BATCH_offset_long, COST_BATCH_coefs_long, x0, x1, x2));
-        RD_BATCH = round3(evaluate_cubic(RD_BATCH_offset_long, RD_BATCH_coefs_long, x0, x1, x2));
-        ACCEPT_TOLERANCE = ACCEPT_TOLERANCE_values[nearbyint(evaluate_cubic(ACCEPT_TOLERANCE_offset_long, ACCEPT_TOLERANCE_coefs_long, x0, x1, x2))];
-        OMEGA_1 = round3(evaluate_cubic(OMEGA_1_offset_long, OMEGA_1_coefs_long, x0, x1, x2));
-        OMEGA_2 = round3(evaluate_cubic(OMEGA_2_offset_long, OMEGA_2_coefs_long, x0, x1, x2));
-        OMEGA_4 = round3(evaluate_cubic(OMEGA_4_offset_long, OMEGA_4_coefs_long, x0, x1, x2));
-        LAMBDA = round3(evaluate_cubic(LAMBDA_offset_long, LAMBDA_coefs_long, x0, x1, x2));
-        ONE_SHIFT_DEPTH = round3(evaluate_cubic(ONE_SHIFT_DEPTH_offset_long, ONE_SHIFT_DEPTH_coefs_long, x0, x1, x2));
-        TWO_SHIFT_LIMIT = nearbyint(evaluate_cubic(TWO_SHIFT_LIMIT_offset_long, TWO_SHIFT_LIMIT_coefs_long, x0, x1, x2));
-        LS_FIRST_IMPROVE = (int)nearbyint(evaluate_cubic(LS_FIRST_IMPROVE_offset_long, LS_FIRST_IMPROVE_coefs_long, x0, x1, x2));
-        BETA_LOWER = nearbyint(evaluate_cubic(BETA_LOWER_offset_long, BETA_LOWER_coefs_long, x0, x1, x2));
-        BETA_UPPER = nearbyint(evaluate_cubic(BETA_UPPER_offset_long, BETA_UPPER_coefs_long, x0, x1, x2));
-        GAMMA = nearbyint(evaluate_cubic(GAMMA_offset_long, GAMMA_coefs_long, x0, x1, x2));
-        NU = round3(evaluate_cubic(NU_offset_long, NU_coefs_long, x0, x1, x2));
-        MU1 = round3(evaluate_cubic(MU1_offset_long, MU1_coefs_long, x0, x1, x2));
-        MU2 = round3(evaluate_cubic(MU2_offset_long, MU2_coefs_long, x0, x1, x2));
-        INSERTIONS1 = nearbyint(evaluate_cubic(INSERTIONS1_offset_long, INSERTIONS1_coefs_long, x0, x1, x2));
-        INSERTIONS2 = nearbyint(evaluate_cubic(INSERTIONS2_offset_long, INSERTIONS2_coefs_long, x0, x1, x2));
-        methods.insertions = util::decode_insertions(INSERTIONS1, INSERTIONS2);
-        REMOVALS = nearbyint(evaluate_cubic(REMOVALS_offset_long, REMOVALS_coefs_long, x0, x1, x2));
-        methods.removals = util::decode_removals(REMOVALS);
-        LS = nearbyint(evaluate_cubic(LS_offset_long, LS_coefs_long, x0, x1, x2));
-        methods.ls = util::decode_ls(LS);
-        methods.construction = nearbyint(evaluate_cubic(CONS_offset_long, CONS_coefs_long, x0, x1, x2));
-    } else {
-//        cout << "Setup 3\n";
-        ITERS_MAX = 6646;
-        ALNS_DEPTH = 0.298;
-        LENGTH_BATCH = 0.862;
-        COST_BATCH = 0.755;
-        RD_BATCH = 0.490;
+        // all_15min_v4
+        ITERS_MAX = 10000;
+        ALNS_DEPTH = 0.75;
+        LENGTH_BATCH = 0.5;
+        COST_BATCH = 0.5;
+        RD_BATCH = 0.5;
         ACCEPT_TOLERANCE = 0.01;
-        OMEGA_1 = 95.544;
-        OMEGA_2 = 93.332;
-        OMEGA_4 = 16.145;
-        LAMBDA = 0.405;
-        ONE_SHIFT_DEPTH = 0.507;
+        OMEGA_1 = 100;
+        OMEGA_2 = 50;
+        OMEGA_4 = 1;
+        LAMBDA = 0.9;
+        ONE_SHIFT_DEPTH = 1;
         TWO_SHIFT_LIMIT = 1;
         LS_FIRST_IMPROVE = false;
-        BETA_LOWER = 6488;
-        BETA_UPPER = 571;
-        GAMMA = 2992;
-        NU = 0.261;
-        MU1 = 0.420;
-        MU2 = 444.006;
-        methods.insertions = vector<uint_t>{1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0};
-        methods.removals = vector<uint_t>{1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1};
-        methods.ls = vector<uint_t>{1, 0, 0};
-        methods.construction = 1;
-    }
+        BETA_LOWER = 100000;
+        BETA_UPPER = 100000;
+        GAMMA = 100000;
+        NU = 0.25;
+        MU1 = 0.5;
+        MU2 = 500;
+        methods.insertions = vector<uint_t>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+        methods.removals = vector<uint_t>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+        methods.ls = vector<uint_t>{1, 1, 1};
+        methods.construction = 3;
 }
 
 /*

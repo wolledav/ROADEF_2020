@@ -50,6 +50,9 @@ int main(int argc, char *argv[]) {
 //    solution.print_state();
     solution.save(OUTPUT_PATH);
 
+//    cout << "SEED: " << SEED << endl;
+//    solution.print_state();
+
 //    chrono::steady_clock::time_point end = chrono::steady_clock::now();
 //    cout << "Time = " << chrono::duration_cast<chrono::milliseconds>(end - BEGIN).count() << "ms" << endl;
 //    cout << endl;

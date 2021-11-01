@@ -28,4 +28,5 @@ Solution shortest1_construct(Instance *instance, std::default_random_engine *eng
 Solution shortest2_construct(Instance *instance, std::default_random_engine *engine);
 Solution most_expensive_construct(Instance *instance, std::default_random_engine *engine);
 
+Solution random_with_me_violations_construct(Instance *instance, std::default_random_engine *engine);
 #endif

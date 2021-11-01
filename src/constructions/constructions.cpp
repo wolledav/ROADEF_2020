@@ -256,3 +256,15 @@ Solution most_expensive_construct(Instance *instance, std::default_random_engine
     }
     return s;
 }
+
+Solution random_with_me_violations_construct(Instance *instance, std::default_random_engine *engine) {
+    Solution s(instance, engine);
+    while (s.has_unscheduled()) {
+        if (!stop()) {
+            random_with_me_violations(s);
+        } else {
+            fixed_order_insert(s);
+        }
+    }
+    return s;
+}

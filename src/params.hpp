@@ -55,6 +55,10 @@
 #define CONSTRUCTION_LABEL ("CONSTRUCTION")
 #define NUMERIC_TOLERANCE 0.00001
 #define TIME_RESERVE 600
+// Continuous solution saving
+#define SAVE_SOL_PROGRESS (false)
+#define SOL_PROGRESS_DIR ("./solutions/sol_progress/")
+extern uint_t sol_progress_cnt;
 
 extern std::string INPUT_PATH;
 extern std::string OUTPUT_PATH;
